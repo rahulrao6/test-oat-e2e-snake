@@ -77,20 +77,23 @@ class InputHandler:
         
         # Handle escape sequences (arrow keys)
         if ch == '\x1b':
-            # Read next two chars for escape sequence
+            # Read next two chars for escape sequence (non-blocking)
             # Arrow keys are: ESC [ A/B/C/D
-            next_chars = sys.stdin.read(2)
-            if next_chars == '[A':
-                return 'up'
-            elif next_chars == '[B':
-                return 'down'
-            elif next_chars == '[C':
-                return 'right'
-            elif next_chars == '[D':
-                return 'left'
-            else:
-                # Unknown escape sequence
-                return None
+            import select
+            if select.select([sys.stdin], [], [], 0)[0]:
+                next_char1 = sys.stdin.read(1)
+                if next_char1 == '[' and select.select([sys.stdin], [], [], 0)[0]:
+                    next_char2 = sys.stdin.read(1)
+                    if next_char2 == 'A':
+                        return 'up'
+                    elif next_char2 == 'B':
+                        return 'down'
+                    elif next_char2 == 'C':
+                        return 'right'
+                    elif next_char2 == 'D':
+                        return 'left'
+            # Unknown or incomplete escape sequence
+            return None
         
         # Handle regular keys
         ch_lower = ch.lower()
