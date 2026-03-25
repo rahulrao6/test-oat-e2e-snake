@@ -79,7 +79,6 @@ class InputHandler:
         if ch == '\x1b':
             # Read next two chars for escape sequence (non-blocking)
             # Arrow keys are: ESC [ A/B/C/D
-            import select
             if select.select([sys.stdin], [], [], 0)[0]:
                 next_char1 = sys.stdin.read(1)
                 if next_char1 == '[' and select.select([sys.stdin], [], [], 0)[0]:
